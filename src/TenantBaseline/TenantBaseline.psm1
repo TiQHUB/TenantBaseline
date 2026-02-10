@@ -35,3 +35,6 @@ if (Test-Path -Path $publicPath) {
         }
     }
 }
+
+# Create alias so users can launch the interactive menu by typing 'TenantBaseline'
+New-Alias -Name 'TenantBaseline' -Value 'Start-TBInteractive' -Force

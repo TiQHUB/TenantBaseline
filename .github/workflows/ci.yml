@@ -80,6 +80,6 @@ jobs:
           $commands = Get-Command -Module TenantBaseline
           Write-Host "Exported commands: $($commands.Count)"
           $commands | Format-Table Name, CommandType -AutoSize
-          if ($commands.Count -ne 26) {
-              throw "Expected 26 exported commands, got $($commands.Count)"
+          if ($commands.Count -ne 27) {
+              throw "Expected 27 exported commands, got $($commands.Count)"
           }
