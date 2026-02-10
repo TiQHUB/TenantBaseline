@@ -17,7 +17,6 @@ function Start-TBInteractive {
     param()
 
     $lastError = $null
-    $connectedDuringThisLaunch = $false
     while ($true) {
         # Check for an existing Graph session first
         try {
@@ -68,7 +67,6 @@ function Start-TBInteractive {
             try {
                 Connect-TBTenant
                 $lastError = $null
-                $connectedDuringThisLaunch = $true
             }
             catch {
                 $lastError = $_.Exception.Message
@@ -101,7 +99,6 @@ function Start-TBInteractive {
                     try {
                         Connect-TBTenant -Environment $selectedEnv
                         $lastError = $null
-                        $connectedDuringThisLaunch = $true
                     }
                     catch {
                         $lastError = $_.Exception.Message
@@ -123,47 +120,45 @@ function Start-TBInteractive {
         Write-Host '  Invalid option. Enter 1 or 2.' -ForegroundColor Yellow
     }
 
-    if ($connectedDuringThisLaunch) {
-        Write-Host ''
-        Write-Host '  Checking UTCM service principal status...' -ForegroundColor Cyan
-        try {
-            $spExists = Test-TBServicePrincipal
-            if ($spExists) {
-                Write-Host '  UTCM service principal: INSTALLED' -ForegroundColor Green
+    Write-Host ''
+    Write-Host '  Checking UTCM service principal status...' -ForegroundColor Cyan
+    try {
+        $spExists = Test-TBServicePrincipal
+        if ($spExists) {
+            Write-Host '  UTCM service principal: INSTALLED' -ForegroundColor Green
+        }
+        else {
+            Write-Host '  UTCM service principal: NOT FOUND' -ForegroundColor Red
+            Write-Host '  The UTCM service principal is required for monitors and snapshots.' -ForegroundColor Yellow
+            Write-Host '  Installing requires Global Administrator or Application Administrator role.' -ForegroundColor Yellow
+            Write-Host ''
+            $installChoice = Read-Host -Prompt '  Install the UTCM service principal now? (Y/n)'
+            if ($installChoice -notmatch '^[Nn]') {
+                try {
+                    $result = Install-TBServicePrincipal -Confirm:$false
+                    Write-Host ''
+                    Write-Host ('  Service Principal ID: {0}' -f $result.Id) -ForegroundColor Green
+                    if ($result.AlreadyExisted) {
+                        Write-Host '  (Already existed)' -ForegroundColor Yellow
+                    }
+                    else {
+                        Write-Host '  Successfully installed.' -ForegroundColor Green
+                    }
+                }
+                catch {
+                    Write-Host ('  Installation failed: {0}' -f $_.Exception.Message) -ForegroundColor Red
+                    Write-Host '  You can retry from Setup and Permissions in the main menu.' -ForegroundColor Yellow
+                }
             }
             else {
-                Write-Host '  UTCM service principal: NOT FOUND' -ForegroundColor Red
-                Write-Host '  The UTCM service principal is required for monitors and snapshots.' -ForegroundColor Yellow
-                Write-Host '  Installing requires Global Administrator or Application Administrator role.' -ForegroundColor Yellow
-                Write-Host ''
-                $installChoice = Read-Host -Prompt '  Install the UTCM service principal now? (Y/n)'
-                if ($installChoice -notmatch '^[Nn]') {
-                    try {
-                        $result = Install-TBServicePrincipal -Confirm:$false
-                        Write-Host ''
-                        Write-Host ('  Service Principal ID: {0}' -f $result.Id) -ForegroundColor Green
-                        if ($result.AlreadyExisted) {
-                            Write-Host '  (Already existed)' -ForegroundColor Yellow
-                        }
-                        else {
-                            Write-Host '  Successfully installed.' -ForegroundColor Green
-                        }
-                    }
-                    catch {
-                        Write-Host ('  Installation failed: {0}' -f $_.Exception.Message) -ForegroundColor Red
-                        Write-Host '  You can retry from Setup and Permissions in the main menu.' -ForegroundColor Yellow
-                    }
-                }
-                else {
-                    Write-Host '  You can install it later from Setup and Permissions in the main menu.' -ForegroundColor DarkGray
-                }
+                Write-Host '  You can install it later from Setup and Permissions in the main menu.' -ForegroundColor DarkGray
             }
         }
-        catch {
-            Write-Host ('  Could not check service principal: {0}' -f $_.Exception.Message) -ForegroundColor Yellow
-        }
-        Write-Host ''
     }
+    catch {
+        Write-Host ('  Could not check service principal: {0}' -f $_.Exception.Message) -ForegroundColor Yellow
+    }
+    Write-Host ''
 
     Show-TBMainMenu
     Write-Host ''

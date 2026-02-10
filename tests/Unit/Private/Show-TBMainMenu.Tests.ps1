@@ -315,7 +315,7 @@ Describe 'Show-TBMainMenu' {
             }
 
             Should -Invoke -CommandName Write-Host -ModuleName TenantBaseline -Times 1 -ParameterFilter {
-                $Object -match 'What you can do now:'
+                $Object -match 'Available:'
             }
         }
 

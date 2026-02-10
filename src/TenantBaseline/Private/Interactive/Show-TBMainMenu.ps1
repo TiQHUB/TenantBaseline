@@ -69,31 +69,26 @@ function Write-TBMainMenuCapabilitySummary {
         [pscustomobject]$Capabilities
     )
 
-    $available = @()
-    if ($Capabilities.HasMonitoringAccess) {
-        $available += 'Monitor/Baseline/Snapshot/Drift/Reports'
-    }
-    if ($Capabilities.HasSetupAccess) {
-        $available += 'Setup and Permissions'
-    }
+    $hasMonitoring = $Capabilities.HasMonitoringAccess
+    $hasSetup      = $Capabilities.HasSetupAccess
 
-    if ($available.Count -gt 0) {
-        Write-Host ('  What you can do now: {0}' -f ($available -join ' | ')) -ForegroundColor Cyan
+    if ($hasMonitoring -or $hasSetup) {
+        Write-Host '    Available:' -ForegroundColor Cyan -NoNewline
+        $parts = @()
+        if ($hasMonitoring) { $parts += 'Monitors, Baselines, Snapshots, Drift, Reports' }
+        if ($hasSetup)      { $parts += 'Setup' }
+        Write-Host (' {0}' -f ($parts -join ', ')) -ForegroundColor Cyan
     }
     else {
-        Write-Host '  What you can do now: Connection Status only' -ForegroundColor Yellow
+        Write-Host '    Available: Connection Status only' -ForegroundColor Yellow
     }
 
     if (-not $Capabilities.HasSetupAccess) {
-        Write-Host '  Setup actions are locked (requires Application.ReadWrite.All).' -ForegroundColor DarkGray
+        Write-Host '    Setup actions are locked (requires Application.ReadWrite.All).' -ForegroundColor DarkGray
     }
 
     if (-not $Capabilities.HasMonitoringAccess) {
-        Write-Host '  Workload actions are locked (requires ConfigurationMonitoring.Read.All or ReadWrite.All).' -ForegroundColor DarkGray
-    }
-
-    if (-not $Status.DirectoryMetadataEnabled) {
-        Write-Host '  Tip: Open Connection Status and press D to enable primary domain/display name.' -ForegroundColor DarkGray
+        Write-Host '    Workload actions are locked (requires ConfigurationMonitoring.Read.All or ReadWrite.All).' -ForegroundColor DarkGray
     }
 
     Write-Host ''
