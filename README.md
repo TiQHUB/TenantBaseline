@@ -8,6 +8,8 @@
 [![Tests](https://img.shields.io/badge/tests-255%20passing-brightgreen)](tests/)
 [![CI](https://github.com/ugurkocde/TenantBaseline/actions/workflows/ci.yml/badge.svg)](https://github.com/ugurkocde/TenantBaseline/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+<img src="Screenshot.png" alt="TenantBaseline interactive console">
 </div>
 
 ```powershell
