@@ -21,7 +21,7 @@ Describe 'Write-TBMenuHeader' {
             $model.LinkedInText | Should -Be 'LinkedIn: linkedin.com/in/ugurkocde'
             $model.RepositoryText | Should -Be 'Repository: github.com/ugurkocde/tenantbaseline'
             $model.UTCMText | Should -Match '^UTCM:'
-            $model.LinksLine | Should -Be 'tenantbaseline.com  |  github.com/ugurkocde/tenantbaseline'
+            $model.LinksLine | Should -Be 'TenantBaseline.com |  GitHub.com/ugurkocde/tenantbaseline'
             $model.UTCMShort | Should -Be 'UTCM: Unified Tenant Configuration Management (Microsoft Graph)'
             $model.CapabilitiesLine | Should -Be 'Monitoring, Drift Detection, Snapshots, Baselines, Reports'
         }
@@ -59,8 +59,8 @@ Describe 'Write-TBMenuHeader' {
                 }
             } | Should -Not -Throw
 
-            Should -Invoke -CommandName Write-Host -ModuleName TenantBaseline -Times 0 -ParameterFilter { $Object -match 'tenantbaseline\.com' }
-            Should -Invoke -CommandName Write-Host -ModuleName TenantBaseline -Times 0 -ParameterFilter { $Object -match 'github\.com/ugurkocde/tenantbaseline' }
+            Should -Invoke -CommandName Write-Host -ModuleName TenantBaseline -Times 1 -ParameterFilter { $Object -match 'tenantbaseline\.com' }
+            Should -Invoke -CommandName Write-Host -ModuleName TenantBaseline -Times 1 -ParameterFilter { $Object -match 'github\.com/ugurkocde/tenantbaseline' }
             Should -Invoke -CommandName Write-Host -ModuleName TenantBaseline -Times 0 -ParameterFilter { $Object -match 'UTCM:' }
         }
     }

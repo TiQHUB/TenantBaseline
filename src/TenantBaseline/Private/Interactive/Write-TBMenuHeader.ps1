@@ -38,7 +38,7 @@ function Get-TBHeaderModel {
             BackendText       = 'Backend: Uses The Microsoft First-Party UTCM App (App ID: 03b07b79-c5bc-4b5e-9bfa-13acf4a99998).'
             UseCasesText      = 'Use Cases: Tenant Configuration Monitoring, Drift Detection, Snapshot Auditing.'
             FeaturesText      = 'Features: Baseline Management, Monitor Workflows, Reports/Dashboard/Documentation, UTCM Setup Planning.'
-            LinksLine         = 'tenantbaseline.com  |  github.com/ugurkocde/tenantbaseline'
+            LinksLine         = 'TenantBaseline.com |  GitHub.com/ugurkocde/tenantbaseline'
             UTCMShort         = 'UTCM: Unified Tenant Configuration Management (Microsoft Graph)'
             CapabilitiesLine  = 'Monitoring, Drift Detection, Snapshots, Baselines, Reports'
         }
@@ -297,10 +297,11 @@ function Write-TBMenuHeaderPremium {
         & $writeCenteredStyledLine -Text $actionText -Style $actionStyle
     }
 
+    & $writePaddedLine -Text '' -Style $palette.Text
+    & $writePaddedLine -Text $HeaderModel.LinksLine -Style $palette.Subtext
+
     if ($Mode -eq 'Rich') {
-        & $writePaddedLine -Text '' -Style $palette.Text
         & $writePaddedLine -Text $HeaderModel.MetaLine -Style $palette.Dim
-        & $writePaddedLine -Text $HeaderModel.LinksLine -Style $palette.Subtext
         & $writePaddedLine -Text $HeaderModel.UTCMShort -Style $palette.Peach
         & $writePaddedLine -Text $HeaderModel.CapabilitiesLine -Style $palette.Subtext
     }
@@ -389,9 +390,11 @@ function Write-TBMenuHeaderClassic {
         $null = $lines.Add((& $centerText $actionText))
     }
 
+    $null = $lines.Add('')
+    $null = $lines.Add((& $centerText $HeaderModel.LinksLine))
+
     if ($Mode -eq 'Rich') {
         $null = $lines.Add((& $fitText $HeaderModel.MetaLine).PadRight($maxWidth))
-        $null = $lines.Add((& $fitText $HeaderModel.LinksLine).PadRight($maxWidth))
         $null = $lines.Add((& $fitText $HeaderModel.UTCMShort).PadRight($maxWidth))
         $null = $lines.Add((& $fitText $HeaderModel.CapabilitiesLine).PadRight($maxWidth))
     }
