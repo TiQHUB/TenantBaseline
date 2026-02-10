@@ -5,6 +5,11 @@ All notable changes to the TenantBaseline module will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-02-10
+
+### Added
+- Intune `deviceCleanupRule` resource type to UTCM catalog (269 total, 68 Intune)
+
 ## [0.1.3] - 2026-02-10
 
 ### Changed
@@ -33,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-02-10
 
 ### Added
-- Canonical UTCM resource catalog artifact (`UTCMResourceCatalog.json`) with 268 resource types
+- Canonical UTCM resource catalog artifact (`UTCMResourceCatalog.json`) with 269 resource types
 - `Get-TBPermissionPlan` for hybrid auto/granular permission planning
 - OData pagination helper for complete list retrieval (`Invoke-TBGraphPagedRequest`)
 - Shared Fluent HTML style tokens used by dashboard, report, and documentation outputs

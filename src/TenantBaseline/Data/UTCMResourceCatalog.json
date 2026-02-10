@@ -2,7 +2,7 @@
   "GeneratedOn": "2026-02-08",
   "Source": "https://json.schemastore.org/utcm-monitor.json",
   "SchemaVersion": "snapshot-2026-02-08",
-  "ResourceCount": 268,
+  "ResourceCount": 269,
   "Resources": [
     {
       "Name": "microsoft.entra.administrativeunit",
@@ -1000,6 +1000,14 @@
       "Name": "microsoft.intune.devicecategory",
       "ShortName": "devicecategory",
       "DisplayName": "Devicecategory",
+      "WorkloadId": "Intune",
+      "WorkloadDisplayName": "Intune",
+      "Provider": "Graph"
+    },
+    {
+      "Name": "microsoft.intune.devicecleanuprule",
+      "ShortName": "devicecleanuprule",
+      "DisplayName": "Device Cleanup Rule",
       "WorkloadId": "Intune",
       "WorkloadDisplayName": "Intune",
       "Provider": "Graph"

@@ -1,6 +1,6 @@
 @{
     RootModule        = 'TenantBaseline.psm1'
-    ModuleVersion     = '0.1.3'
+    ModuleVersion     = '0.1.4'
     GUID              = 'edee0e7b-afeb-4cc1-b30c-ef8486d7c9a6'
     Author            = 'TenantBaseline Contributors'
     CompanyName       = 'Community'
@@ -67,7 +67,7 @@
             Tags         = @('Microsoft365', 'Graph', 'UTCM', 'Baseline', 'Drift', 'Security', 'Compliance', 'Intune', 'ConditionalAccess', 'EntraID')
             LicenseUri   = 'https://github.com/ugurkocde/TenantBaseline/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/ugurkocde/TenantBaseline'
-            ReleaseNotes = 'PowerShell 7.2+ baseline, UTCM catalog parity, improved permission planning, pagination, and UX modernization.'
+            ReleaseNotes = 'Add missing Intune deviceCleanupRule resource type to UTCM catalog (now 269 total).'
         }
     }
 }
