@@ -62,12 +62,44 @@ function Start-TBInteractive {
 
     if ($connectedDuringThisLaunch) {
         Write-Host ''
-        Write-Host '  Quick Start (recommended)' -ForegroundColor Cyan
-        Write-Host '  1) Setup check  2) Create first monitor' -ForegroundColor DarkGray
-        $quickStartChoice = Read-Host -Prompt '  Run quick start now? (y/N)'
-        if ($quickStartChoice -match '^[Yy]') {
-            Invoke-TBQuickStart
+        Write-Host '  Checking UTCM service principal status...' -ForegroundColor Cyan
+        try {
+            $spExists = Test-TBServicePrincipal
+            if ($spExists) {
+                Write-Host '  UTCM service principal: INSTALLED' -ForegroundColor Green
+            }
+            else {
+                Write-Host '  UTCM service principal: NOT FOUND' -ForegroundColor Red
+                Write-Host '  The UTCM service principal is required for monitors and snapshots.' -ForegroundColor Yellow
+                Write-Host '  Installing requires Global Administrator or Application Administrator role.' -ForegroundColor Yellow
+                Write-Host ''
+                $installChoice = Read-Host -Prompt '  Install the UTCM service principal now? (Y/n)'
+                if ($installChoice -notmatch '^[Nn]') {
+                    try {
+                        $result = Install-TBServicePrincipal -Confirm:$false
+                        Write-Host ''
+                        Write-Host ('  Service Principal ID: {0}' -f $result.Id) -ForegroundColor Green
+                        if ($result.AlreadyExisted) {
+                            Write-Host '  (Already existed)' -ForegroundColor Yellow
+                        }
+                        else {
+                            Write-Host '  Successfully installed.' -ForegroundColor Green
+                        }
+                    }
+                    catch {
+                        Write-Host ('  Installation failed: {0}' -f $_.Exception.Message) -ForegroundColor Red
+                        Write-Host '  You can retry from Setup and Permissions in the main menu.' -ForegroundColor Yellow
+                    }
+                }
+                else {
+                    Write-Host '  You can install it later from Setup and Permissions in the main menu.' -ForegroundColor DarkGray
+                }
+            }
         }
+        catch {
+            Write-Host ('  Could not check service principal: {0}' -f $_.Exception.Message) -ForegroundColor Yellow
+        }
+        Write-Host ''
     }
 
     Show-TBMainMenu

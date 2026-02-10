@@ -11,7 +11,8 @@ Describe 'Start-TBInteractive' {
     BeforeEach {
         Mock -ModuleName TenantBaseline Write-Host {}
         Mock -ModuleName TenantBaseline Show-TBMainMenu {}
-        Mock -ModuleName TenantBaseline Invoke-TBQuickStart {}
+        Mock -ModuleName TenantBaseline Test-TBServicePrincipal { return $true }
+        Mock -ModuleName TenantBaseline Install-TBServicePrincipal {}
     }
 
     Context 'Function exists and is exported' {
@@ -89,6 +90,7 @@ Describe 'Start-TBInteractive' {
             }
 
             Should -Invoke -CommandName Connect-TBTenant -ModuleName TenantBaseline -Times 1
+            Should -Invoke -CommandName Test-TBServicePrincipal -ModuleName TenantBaseline -Times 1
             Should -Invoke -CommandName Show-TBMainMenu -ModuleName TenantBaseline -Times 1
         }
     }
@@ -148,13 +150,14 @@ Describe 'Start-TBInteractive' {
             }
 
             Should -Invoke -CommandName Connect-TBTenant -ModuleName TenantBaseline -Times 2
+            Should -Invoke -CommandName Test-TBServicePrincipal -ModuleName TenantBaseline -Times 1
             Should -Invoke -CommandName Show-TBMainMenu -ModuleName TenantBaseline -Times 1
         }
     }
 
-    Context 'Not connected - first successful sign-in quick start' {
+    Context 'First successful sign-in checks service principal' {
 
-        It 'Runs quick start when user confirms' {
+        It 'Checks service principal status after first sign-in' {
             $script:statusCalls = 0
             Mock -ModuleName TenantBaseline Get-TBConnectionStatus {
                 $script:statusCalls++
@@ -185,12 +188,62 @@ Describe 'Start-TBInteractive' {
                 }
             }
 
+            Mock -ModuleName TenantBaseline Read-Host { return '1' }
+            Mock -ModuleName TenantBaseline Connect-TBTenant {}
+
+            InModuleScope TenantBaseline {
+                Start-TBInteractive
+            }
+
+            Should -Invoke -CommandName Test-TBServicePrincipal -ModuleName TenantBaseline -Times 1
+            Should -Invoke -CommandName Show-TBMainMenu -ModuleName TenantBaseline -Times 1
+        }
+    }
+
+    Context 'Service principal not found - user accepts install' {
+
+        It 'Offers to install service principal when not found' {
+            $script:statusCalls = 0
+            Mock -ModuleName TenantBaseline Get-TBConnectionStatus {
+                $script:statusCalls++
+                if ($script:statusCalls -eq 1) {
+                    return [PSCustomObject]@{
+                        Connected                = $false
+                        TenantId                 = $null
+                        Account                  = $null
+                        Scopes                   = @()
+                        ConnectedAt              = $null
+                        TenantDisplayName        = $null
+                        PrimaryDomain            = $null
+                        IdentityLabel            = $null
+                        DirectoryMetadataEnabled = $false
+                    }
+                }
+
+                return [PSCustomObject]@{
+                    Connected                = $true
+                    TenantId                 = 'test-tenant'
+                    Account                  = 'admin@test.com'
+                    Scopes                   = @()
+                    ConnectedAt              = $null
+                    TenantDisplayName        = $null
+                    PrimaryDomain            = $null
+                    IdentityLabel            = 'test.com'
+                    DirectoryMetadataEnabled = $false
+                }
+            }
+
+            Mock -ModuleName TenantBaseline Test-TBServicePrincipal { return $false }
+            Mock -ModuleName TenantBaseline Install-TBServicePrincipal {
+                return [PSCustomObject]@{ Id = 'sp-123'; AlreadyExisted = $false }
+            }
+
             $script:inputCalls = 0
             Mock -ModuleName TenantBaseline Read-Host {
                 $script:inputCalls++
                 switch ($script:inputCalls) {
-                    1 { return '1' }
-                    2 { return 'Y' }
+                    1 { return '1' }   # Sign in
+                    2 { return 'Y' }   # Install SP
                     default { return '' }
                 }
             }
@@ -200,7 +253,64 @@ Describe 'Start-TBInteractive' {
                 Start-TBInteractive
             }
 
-            Should -Invoke -CommandName Invoke-TBQuickStart -ModuleName TenantBaseline -Times 1
+            Should -Invoke -CommandName Test-TBServicePrincipal -ModuleName TenantBaseline -Times 1
+            Should -Invoke -CommandName Install-TBServicePrincipal -ModuleName TenantBaseline -Times 1
+            Should -Invoke -CommandName Show-TBMainMenu -ModuleName TenantBaseline -Times 1
+        }
+    }
+
+    Context 'Service principal not found - user declines install' {
+
+        It 'Skips installation when user declines' {
+            $script:statusCalls = 0
+            Mock -ModuleName TenantBaseline Get-TBConnectionStatus {
+                $script:statusCalls++
+                if ($script:statusCalls -eq 1) {
+                    return [PSCustomObject]@{
+                        Connected                = $false
+                        TenantId                 = $null
+                        Account                  = $null
+                        Scopes                   = @()
+                        ConnectedAt              = $null
+                        TenantDisplayName        = $null
+                        PrimaryDomain            = $null
+                        IdentityLabel            = $null
+                        DirectoryMetadataEnabled = $false
+                    }
+                }
+
+                return [PSCustomObject]@{
+                    Connected                = $true
+                    TenantId                 = 'test-tenant'
+                    Account                  = 'admin@test.com'
+                    Scopes                   = @()
+                    ConnectedAt              = $null
+                    TenantDisplayName        = $null
+                    PrimaryDomain            = $null
+                    IdentityLabel            = 'test.com'
+                    DirectoryMetadataEnabled = $false
+                }
+            }
+
+            Mock -ModuleName TenantBaseline Test-TBServicePrincipal { return $false }
+
+            $script:inputCalls = 0
+            Mock -ModuleName TenantBaseline Read-Host {
+                $script:inputCalls++
+                switch ($script:inputCalls) {
+                    1 { return '1' }   # Sign in
+                    2 { return 'n' }   # Decline SP install
+                    default { return '' }
+                }
+            }
+            Mock -ModuleName TenantBaseline Connect-TBTenant {}
+
+            InModuleScope TenantBaseline {
+                Start-TBInteractive
+            }
+
+            Should -Invoke -CommandName Test-TBServicePrincipal -ModuleName TenantBaseline -Times 1
+            Should -Not -Invoke -CommandName Install-TBServicePrincipal -ModuleName TenantBaseline
             Should -Invoke -CommandName Show-TBMainMenu -ModuleName TenantBaseline -Times 1
         }
     }
