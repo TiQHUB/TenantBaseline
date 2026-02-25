@@ -17,7 +17,22 @@ function Write-TBLog {
         [string]$Level = 'Verbose'
     )
 
-    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+    $easternTimeZone = $null
+    foreach ($timeZoneId in @('Eastern Standard Time', 'America/New_York')) {
+        try {
+            $easternTimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById($timeZoneId)
+            break
+        }
+        catch {
+            continue
+        }
+    }
+
+    if (-not $easternTimeZone) {
+        $easternTimeZone = [System.TimeZoneInfo]::Utc
+    }
+
+    $timestamp = [System.TimeZoneInfo]::ConvertTimeFromUtc([DateTime]::UtcNow, $easternTimeZone).ToString('yyyy-MM-dd HH:mm:ss')
     $formatted = '[{0}] [{1}] {2}' -f $timestamp, $Level, $Message
 
     switch ($Level) {
